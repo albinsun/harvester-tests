@@ -12,6 +12,7 @@ from datetime import datetime
 
 # Global API client instance
 _harvester_api_client = None
+_harvester_gui_client = None
 
 coloredlogs.install(level='INFO', fmt='%(asctime)s %(levelname)s %(message)s')
 logger = log.getLogger(__name__)
@@ -115,3 +116,46 @@ def init_k8s_api_client():
     logging("Kubernetes API client initialized successfully with SSL verification disabled")
 
     return api_client
+
+
+def get_harvester_gui_client():
+    """
+    Get the shared Harvester API client instance.
+    """
+    global _harvester_gui_client    # NOQA
+
+    from types import SimpleNamespace
+    from playwright.sync_api import expect
+
+    return SimpleNamespace(
+        page=_harvester_gui_client,
+        expect=expect
+    )
+
+
+def init_harvester_gui_client(endpoint, username, password, browser_type='firefox'):
+    """Initialize the shared Harvester GUI client"""
+    global _harvester_gui_client
+
+    from playwright.sync_api import sync_playwright, expect
+
+    logging(f'Initializing Harvester GUI client for {endpoint}')
+
+    playwright = sync_playwright().start()
+    browser = playwright.firefox.launch(headless=False, slow_mo=300)
+    # browser = playwright.firefox.launch()
+    context = browser.new_context(ignore_https_errors=True)
+
+    page = context.new_page()
+    page.goto(endpoint)
+    page.get_by_test_id("local-login-username").click()
+    page.get_by_test_id("local-login-username").fill(username)
+    page.get_by_role("textbox", name="Password").click()
+    page.get_by_role("textbox", name="Password").fill(password)
+    page.get_by_test_id("login-submit").click()
+    expect(
+        page.get_by_test_id("header").get_by_text("Harvester")
+    ).to_contain_text("Harvester")
+
+    _harvester_gui_client = page
+    logging('Harvester API client initialized successfully')

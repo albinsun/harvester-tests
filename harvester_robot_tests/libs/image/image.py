@@ -2,20 +2,25 @@
 Image Component - delegates to Rest implementation
 """
 from constant import HarvesterOperationStrategy
-from image.rest import Rest
 from image.crd import CRD
+from image.gui import GUI
+from image.rest import Rest
+from robot.libraries.BuiltIn import BuiltIn
 
 
 class Image:
-    # Set desired operation strategy here
-    _strategy = HarvesterOperationStrategy.CRD
-
     """Image component - delegates to Rest implementation"""
     def __init__(self):
-        if self._strategy == HarvesterOperationStrategy.CRD:
+        op_strategy = BuiltIn().get_variable_value("${OPERATION_STRATEGY}")
+
+        if op_strategy == HarvesterOperationStrategy.CRD.value:
             self.image = CRD()
-        else:
+        elif op_strategy == HarvesterOperationStrategy.REST.value:
             self.image = Rest()
+        elif op_strategy == HarvesterOperationStrategy.GUI.value:
+            self.image = GUI()
+        else:
+            BuiltIn().fatal_error(f"Unexpected HARVESTER_OPERATION_STRATEGY: {op_strategy}")
 
     def create_from_url(self, image_name, image_url, checksum, **kwargs):
         return self.image.create_from_url(image_name, image_url, checksum, **kwargs)

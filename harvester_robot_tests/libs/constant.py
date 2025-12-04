@@ -10,6 +10,7 @@ class HarvesterOperationStrategy(Enum):
     """Strategy for Harvester operations - REST API or CRD"""
     REST = "rest"
     CRD = "crd"
+    GUI = "gui"
 
 
 # Harvester API Groups

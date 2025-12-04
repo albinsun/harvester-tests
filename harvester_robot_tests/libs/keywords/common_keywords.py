@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../'
 from utility.utility import generate_name_with_suffix   # noqa E402
 from utility.utility import init_harvester_api_client   # noqa E402
 from utility.utility import init_k8s_api_client  # noqa E402
+from utility.utility import init_harvester_gui_client   # noqa E402
 from utility.utility import logging  # noqa E402
 
 
@@ -27,6 +28,11 @@ class common_keywords:
     def init_k8s_api_client(self):
         """Initialize Kubernetes API client"""
         return init_k8s_api_client()
+
+    # TODO: Make browser_type configurable
+    def init_harvester_gui_client(self, endpoint, username, password, browser_type='firefox'):
+        """Initialize Harvester GUI client"""
+        return init_harvester_gui_client(endpoint, username, password, browser_type)
 
     def generate_name_with_suffix(self, kind, suffix):
         """Generate unique name with timestamp"""

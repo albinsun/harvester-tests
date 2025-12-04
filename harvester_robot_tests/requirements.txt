@@ -31,3 +31,7 @@ pytest-dependency==0.6.0
 
 # Logging and monitoring
 coloredlogs==15.0.1
+
+
+# UI automation
+playwright==1.56.0
