@@ -3,20 +3,25 @@
 VM Component - delegates to Rest implementation
 """
 from constant import HarvesterOperationStrategy
-from vm.rest import Rest
 from vm.crd import CRD
-from vm.base import Base
+from vm.gui import GUI
+from vm.rest import Rest
+from robot.libraries.BuiltIn import BuiltIn
 
 
-class VM(Base):
+class VM:
     # Set desired operation strategy here
-    _strategy = HarvesterOperationStrategy.CRD
-
     def __init__(self):
-        if self._strategy == HarvesterOperationStrategy.CRD:
+        op_strategy = BuiltIn().get_variable_value("${OPERATION_STRATEGY}")
+
+        if op_strategy == HarvesterOperationStrategy.CRD.value:
             self.vm = CRD()
-        else:
+        elif op_strategy == HarvesterOperationStrategy.REST.value:
             self.vm = Rest()
+        elif op_strategy == HarvesterOperationStrategy.GUI.value:
+            self.vm = GUI()
+        else:
+            BuiltIn().fatal_error(f"Unexpected HARVESTER_OPERATION_STRATEGY: {op_strategy}")
 
     def create(self, vm_name, cpu, memory, image_id, **kwargs):
         return self.vm.create(vm_name, cpu, memory, image_id, **kwargs)

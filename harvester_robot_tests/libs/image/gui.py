@@ -1,18 +1,17 @@
 """
-Image Rest Implementation - makes actual API calls using get_harvester_gui_client()
+Image GUI Implementation - Operates via Harvester GUI using Playwright
 """
 
 import re
-
 from utility.utility import get_harvester_gui_client
 from utility.utility import get_retry_count_and_interval
 from utility.utility import logging
-from image.base import Base
+from .base import Base
 from constant import DEFAULT_NAMESPACE
 
 
 class GUI(Base):
-    """Image Rest implementation - makes actual API calls"""
+    """Image GUI implementation - Operates via Harvester GUI using Playwright"""
 
     def __init__(self):
         self.retry_count, self.retry_interval = get_retry_count_and_interval()
@@ -22,6 +21,7 @@ class GUI(Base):
         """Create image from URL"""
         namespace = kwargs.get('namespace', DEFAULT_NAMESPACE)
 
+        logging(f"Creating VirtualMachineImage {namespace}/{image_name}")
         self.b.page.get_by_role("link", name="Images").click()
         self.b.page.get_by_test_id("masthead-create").click()
         self.b.page.get_by_role("combobox", name="Search for option").click()
@@ -31,8 +31,6 @@ class GUI(Base):
         self.b.page.get_by_role("textbox", name="URL").click()
         self.b.page.get_by_role("textbox", name="URL").fill(image_url)
         self.b.page.get_by_test_id("form-save").click()
-
-        return f"{namespace}/{image_name}"
 
     def wait_for_downloaded(self, image_name, timeout):
         """Wait for image to be downloaded"""

@@ -24,18 +24,14 @@ Test VM Basic Lifecycle
     And Wait for image downloaded by name    ${image_name}
 
     When Create VM with name    ${vm_name}    cpu=2    memory=4Gi    image_id=${image_name}
-
     Then Wait for VM running by name    ${vm_name}
     And Wait for VM IP addresses by name    ${vm_name}    ${DEFAULT_NAMESPACE}
 
     When Stop VM by name    ${vm_name}
-
     Then Wait for VM stopped by name    ${vm_name}
 
     When Start VM by name    ${vm_name}
-    
     Then Wait for VM running by name    ${vm_name}
     
     When Delete VM by name    ${vm_name}
-    
     Then Wait for VM deleted by name    ${vm_name}
