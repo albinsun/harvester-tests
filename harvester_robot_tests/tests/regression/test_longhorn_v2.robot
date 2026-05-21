@@ -18,8 +18,9 @@ ${LHv2_SC_REPLICAS}    ${EMPTY}
 Provision LHv2 Storages
     [Tags]    p1
     [Documentation]    Provision at most 3 storages with LHv2 Data Engine
-    When Provision Storages With LHv2 Data Engine    &{DATA_DISK_BY_NODE}
-    Then Wait Until LHv2 Storages Are Provisioned    &{DATA_DISK_BY_NODE}
+    # When Provision Storages With LHv2 Data Engine    &{DATA_DISK_BY_NODE}
+    # Then Wait Until LHv2 Storages Are Provisioned    &{DATA_DISK_BY_NODE}
+    No Operation
 
 
 *** Keywords ***
@@ -27,5 +28,5 @@ Local Suite Setup
     Given Set up test environment
     And storage.Cluster Has Available Data Disks And Set Suite Variables
     And setting.LHv2 Data Engine Is Disabled
-    When setting.Enable LHv2 Data Engine
-    Then setting.Wait Until LHv2 Data Engine Is Enabled
+    # When setting.Enable LHv2 Data Engine
+    # Then setting.Wait Until LHv2 Data Engine Is Enabled

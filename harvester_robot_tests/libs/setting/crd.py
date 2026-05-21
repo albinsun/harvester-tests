@@ -17,6 +17,7 @@ class CRD(Base):
 
     def __init__(self):
         """Initialize Kubernetes client"""
+        super().__init__()
         self.core_api = client.CoreV1Api()
         self.custom_api = client.CustomObjectsApi()
         self.common_parameters = {
@@ -39,6 +40,7 @@ class CRD(Base):
             if e.status == 404:
                 raise Exception(f"Setting {setting_id} not found", level='ERROR')
             raise Exception(f"Failed to get setting {setting_id}: {e}")
+        # return super().enable(setting_id)
 
     def enable(self, setting_id):
         """Enable a setting by id"""
@@ -54,3 +56,4 @@ class CRD(Base):
             return setting
         except ApiException as e:
             raise Exception(f"Failed to enable setting {setting_id}: {e}")
+        # return super().enable(setting_id)
