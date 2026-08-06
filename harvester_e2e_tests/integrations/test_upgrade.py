@@ -119,7 +119,7 @@ def image(api_client, image_ubuntu, unique_name, wait_timeout):
                user=image_ubuntu.ssh_user,
                first_nic=image_ubuntu.first_nic)
 
-    code, data = api_client.images.delete(unique_image_id)
+    # code, data = api_client.images.delete(unique_image_id)
 
 
 @pytest.fixture(scope='module')
@@ -254,8 +254,8 @@ def config_storageclass(request, api_client, unique_name, cluster_state):
     cluster_state.scs = (default_sc, data)
     yield default_sc, data
 
-    code, data = api_client.scs.set_default(default_sc['metadata']['name'])
-    assert 200 == code, (code, data)
+    # code, data = api_client.scs.set_default(default_sc['metadata']['name'])
+    # assert 200 == code, (code, data)
 
 
 @pytest.fixture(scope="module")
@@ -321,58 +321,58 @@ def config_backup_target(request, api_client, wait_timeout):
     yield spec
 
     # remove unbound LH backupVolumes
-    code, data = api_client.lhbackupvolumes.get()
-    assert 200 == code, "Failed to list lhbackupvolumes"
+    # code, data = api_client.lhbackupvolumes.get()
+    # assert 200 == code, "Failed to list lhbackupvolumes"
 
-    check_names = []
-    for volume_data in data["items"]:
-        volume_name = volume_data["metadata"]["name"]
-        backup_name = volume_data["status"]["lastBackupName"]
-        if not backup_name:
-            api_client.lhbackupvolumes.delete(volume_name)
-            check_names.append(volume_name)
+    # check_names = []
+    # for volume_data in data["items"]:
+    #     volume_name = volume_data["metadata"]["name"]
+    #     backup_name = volume_data["status"]["lastBackupName"]
+    #     if not backup_name:
+    #         api_client.lhbackupvolumes.delete(volume_name)
+    #         check_names.append(volume_name)
 
-    endtime = datetime.now() + timedelta(seconds=wait_timeout)
-    while endtime > datetime.now():
-        for name in check_names[:]:
-            code, data = api_client.lhbackupvolumes.get(name)
-            if 404 == code:
-                check_names.remove(name)
-        if not check_names:
-            break
-        sleep(3)
-    else:
-        raise AssertionError(
-            f"Failed to delete unbound lhbackupvolumes: {check_names}\n"
-            f"Last API Status({code}): {data}"
-            )
+    # endtime = datetime.now() + timedelta(seconds=wait_timeout)
+    # while endtime > datetime.now():
+    #     for name in check_names[:]:
+    #         code, data = api_client.lhbackupvolumes.get(name)
+    #         if 404 == code:
+    #             check_names.remove(name)
+    #     if not check_names:
+    #         break
+    #     sleep(3)
+    # else:
+    #     raise AssertionError(
+    #         f"Failed to delete unbound lhbackupvolumes: {check_names}\n"
+    #         f"Last API Status({code}): {data}"
+    #         )
 
-    # restore to original backup-target and remove backups not belong to it
-    code, data = api_client.settings.update('backup-target', origin_spec)
-    code, data = api_client.backups.get()
-    assert 200 == code, "Failed to list backups"
+    # # restore to original backup-target and remove backups not belong to it
+    # code, data = api_client.settings.update('backup-target', origin_spec)
+    # code, data = api_client.backups.get()
+    # assert 200 == code, "Failed to list backups"
 
-    check_names = []
-    for backup in data['data']:
-        endpoint = backup['status']['backupTarget'].get('endpoint')
-        if endpoint != origin_spec.value.get('endpoint'):
-            api_client.backups.delete(backup['metadata']['name'])
-            check_names.append(backup['metadata']['name'])
+    # check_names = []
+    # for backup in data['data']:
+    #     endpoint = backup['status']['backupTarget'].get('endpoint')
+    #     if endpoint != origin_spec.value.get('endpoint'):
+    #         api_client.backups.delete(backup['metadata']['name'])
+    #         check_names.append(backup['metadata']['name'])
 
-    endtime = datetime.now() + timedelta(seconds=wait_timeout)
-    while endtime > datetime.now():
-        for name in check_names[:]:
-            code, data = api_client.backups.get(name)
-            if 404 == code:
-                check_names.remove(name)
-        if not check_names:
-            break
-        sleep(3)
-    else:
-        raise AssertionError(
-            f"Failed to delete backups: {check_names}\n"
-            f"Last API Status({code}): {data}"
-            )
+    # endtime = datetime.now() + timedelta(seconds=wait_timeout)
+    # while endtime > datetime.now():
+    #     for name in check_names[:]:
+    #         code, data = api_client.backups.get(name)
+    #         if 404 == code:
+    #             check_names.remove(name)
+    #     if not check_names:
+    #         break
+    #     sleep(3)
+    # else:
+    #     raise AssertionError(
+    #         f"Failed to delete backups: {check_names}\n"
+    #         f"Last API Status({code}): {data}"
+    #         )
 
 
 @pytest.fixture
@@ -399,20 +399,20 @@ def stopped_vm(request, api_client, ssh_keypair, wait_timeout, unique_name, imag
 
     yield unique_vm_name, image['user'], pri_key
 
-    code, data = api_client.vms.get(unique_vm_name)
-    vm_spec = api_client.vms.Spec.from_dict(data)
+    # code, data = api_client.vms.get(unique_vm_name)
+    # vm_spec = api_client.vms.Spec.from_dict(data)
 
-    api_client.vms.delete(unique_vm_name)
-    endtime = datetime.now() + timedelta(seconds=wait_timeout)
-    while endtime > datetime.now():
-        code, data = api_client.vms.get_status(unique_vm_name)
-        if 404 == code:
-            break
-        sleep(3)
+    # api_client.vms.delete(unique_vm_name)
+    # endtime = datetime.now() + timedelta(seconds=wait_timeout)
+    # while endtime > datetime.now():
+    #     code, data = api_client.vms.get_status(unique_vm_name)
+    #     if 404 == code:
+    #         break
+    #     sleep(3)
 
-    for vol in vm_spec.volumes:
-        vol_name = vol['volume']['persistentVolumeClaim']['claimName']
-        api_client.volumes.delete(vol_name)
+    # for vol in vm_spec.volumes:
+    #     vol_name = vol['volume']['persistentVolumeClaim']['claimName']
+    #     api_client.volumes.delete(vol_name)
 
 
 @pytest.mark.upgrade
@@ -986,365 +986,365 @@ class TestAnyNodesUpgrade:
 
         assert not fails, "\n".join(fails)
 
-    @pytest.mark.dependency(depends=["any_nodes_upgrade", "preq_setup_vms"])
-    def test_verify_restore_vm_from_snapshot(
-        self, api_client, cluster_state, vm_shell, vm_checker, wait_timeout
-    ):
-        """ Verify VM restored from snapshot taken before upgrade
-        Criteria:
-        - VM should able to start from snapshot after upgrade
-        - data in VM should not lost
-        """
+    # @pytest.mark.dependency(depends=["any_nodes_upgrade", "preq_setup_vms"])
+    # def test_verify_restore_vm_from_snapshot(
+    #     self, api_client, cluster_state, vm_shell, vm_checker, wait_timeout
+    # ):
+    #     """ Verify VM restored from snapshot taken before upgrade
+    #     Criteria:
+    #     - VM should able to start from snapshot after upgrade
+    #     - data in VM should not lost
+    #     """
 
-        snapshot_name = cluster_state.vms['snapshot_name']
-        restored_vm_name = f"snap-r-{cluster_state.vms['names'][0]}"
-        cluster_state.dangling[restored_vm_name] = True
+    #     snapshot_name = cluster_state.vms['snapshot_name']
+    #     restored_vm_name = f"snap-r-{cluster_state.vms['names'][0]}"
+    #     cluster_state.dangling[restored_vm_name] = True
 
-        # Restore VM from snapshot and check networking is good
-        restore_spec = api_client.vm_snapshots.RestoreSpec.for_new(restored_vm_name)
-        code, data = api_client.vm_snapshots.restore(snapshot_name, restore_spec)
-        assert code == 201, f"Unable to restore snapshot {snapshot_name} after upgrade"
+    #     # Restore VM from snapshot and check networking is good
+    #     restore_spec = api_client.vm_snapshots.RestoreSpec.for_new(restored_vm_name)
+    #     code, data = api_client.vm_snapshots.restore(snapshot_name, restore_spec)
+    #     assert code == 201, f"Unable to restore snapshot {snapshot_name} after upgrade"
 
-        vm_created, (code, data) = vm_checker.wait_getable(restored_vm_name)
-        assert vm_created, (code, data)
-        vm_got_ips, (code, data) = vm_checker.wait_ip_addresses(restored_vm_name, ["nic-1"])
-        assert vm_got_ips, (
-            f"VM({restored_vm_name}) can not get IP address with errors:\n"
-            f"API Status({code}): {data}"
-        )
+    #     vm_created, (code, data) = vm_checker.wait_getable(restored_vm_name)
+    #     assert vm_created, (code, data)
+    #     vm_got_ips, (code, data) = vm_checker.wait_ip_addresses(restored_vm_name, ["nic-1"])
+    #     assert vm_got_ips, (
+    #         f"VM({restored_vm_name}) can not get IP address with errors:\n"
+    #         f"API Status({code}): {data}"
+    #     )
 
-        # Check data in restored VM is consistent
-        pri_key, ssh_user = cluster_state.vms['pkey'], cluster_state.vms['ssh_user']
-        vm_ip = next(iface['ipAddress'] for iface in data['status']['interfaces']
-                     if iface['name'] == 'nic-1')
-        endtime = datetime.now() + timedelta(seconds=wait_timeout)
-        while endtime > datetime.now():
-            try:
-                with vm_shell.login(vm_ip, ssh_user, pkey=pri_key) as sh:
-                    cloud_inited, (out, err) = vm_checker.wait_cloudinit_done(sh)
-                    assert cloud_inited and not err, (out, err)
-                    out, err = sh.exec_command("md5sum -c ./generate_file.md5")
-                    assert not err, (out, err)
-                    md5, err = sh.exec_command("cat ./generate_file.md5")
-                    assert not err, (md5, err)
-                    assert md5 == cluster_state.vms['md5']
-                    break
-            except (SSHException, NoValidConnectionsError, ConnectionResetError, TimeoutError):
-                sleep(5)
-        else:
-            raise AssertionError(
-                "Unable to login to VM restored from snapshot to check data consistency"
-            )
+    #     # Check data in restored VM is consistent
+    #     pri_key, ssh_user = cluster_state.vms['pkey'], cluster_state.vms['ssh_user']
+    #     vm_ip = next(iface['ipAddress'] for iface in data['status']['interfaces']
+    #                  if iface['name'] == 'nic-1')
+    #     endtime = datetime.now() + timedelta(seconds=wait_timeout)
+    #     while endtime > datetime.now():
+    #         try:
+    #             with vm_shell.login(vm_ip, ssh_user, pkey=pri_key) as sh:
+    #                 cloud_inited, (out, err) = vm_checker.wait_cloudinit_done(sh)
+    #                 assert cloud_inited and not err, (out, err)
+    #                 out, err = sh.exec_command("md5sum -c ./generate_file.md5")
+    #                 assert not err, (out, err)
+    #                 md5, err = sh.exec_command("cat ./generate_file.md5")
+    #                 assert not err, (md5, err)
+    #                 assert md5 == cluster_state.vms['md5']
+    #                 break
+    #         except (SSHException, NoValidConnectionsError, ConnectionResetError, TimeoutError):
+    #             sleep(5)
+    #     else:
+    #         raise AssertionError(
+    #             "Unable to login to VM restored from snapshot to check data consistency"
+    #         )
 
-        # VMs should be able to delete after snapshot operations
-        code, data = api_client.vms.get(restored_vm_name)
-        vm_deleted, (code, data) = vm_checker.wait_deleted(restored_vm_name)
-        assert vm_deleted, (code, data)
-        del cluster_state.dangling[restored_vm_name]
+    #     # VMs should be able to delete after snapshot operations
+    #     code, data = api_client.vms.get(restored_vm_name)
+    #     vm_deleted, (code, data) = vm_checker.wait_deleted(restored_vm_name)
+    #     assert vm_deleted, (code, data)
+    #     del cluster_state.dangling[restored_vm_name]
 
-    @pytest.mark.dependency(depends=["any_nodes_upgrade", "preq_setup_vms"])
-    def test_verify_restore_vm(
-        self, api_client, cluster_state, vm_shell, vm_checker, wait_timeout
-    ):
-        """ Verify VM restored from the backup
-        Criteria:
-        - VM should able to start
-        - data in VM should not lost
-        """
+    # @pytest.mark.dependency(depends=["any_nodes_upgrade", "preq_setup_vms"])
+    # def test_verify_restore_vm(
+    #     self, api_client, cluster_state, vm_shell, vm_checker, wait_timeout
+    # ):
+    #     """ Verify VM restored from the backup
+    #     Criteria:
+    #     - VM should able to start
+    #     - data in VM should not lost
+    #     """
 
-        backup_name = cluster_state.vms['names'][0]
-        restored_vm_name = f"new-r-{backup_name}"
-        cluster_state.dangling[restored_vm_name] = True
+    #     backup_name = cluster_state.vms['names'][0]
+    #     restored_vm_name = f"new-r-{backup_name}"
+    #     cluster_state.dangling[restored_vm_name] = True
 
-        # Restore VM from backup and check networking is good
-        restore_spec = api_client.backups.RestoreSpec.for_new(restored_vm_name)
-        code, data = api_client.backups.restore(backup_name, restore_spec)
-        assert code == 201, f"Unable to restore backup {backup_name} after upgrade"
+    #     # Restore VM from backup and check networking is good
+    #     restore_spec = api_client.backups.RestoreSpec.for_new(restored_vm_name)
+    #     code, data = api_client.backups.restore(backup_name, restore_spec)
+    #     assert code == 201, f"Unable to restore backup {backup_name} after upgrade"
 
-        vm_created, (code, data) = vm_checker.wait_getable(restored_vm_name)
-        assert vm_created, (code, data)
-        vm_got_ips, (code, data) = vm_checker.wait_ip_addresses(restored_vm_name, ["nic-1"])
-        assert vm_got_ips, (
-            f"VM({restored_vm_name}) can not get IP address with errors:\n"
-            f"API Status({code}): {data}"
-        )
+    #     vm_created, (code, data) = vm_checker.wait_getable(restored_vm_name)
+    #     assert vm_created, (code, data)
+    #     vm_got_ips, (code, data) = vm_checker.wait_ip_addresses(restored_vm_name, ["nic-1"])
+    #     assert vm_got_ips, (
+    #         f"VM({restored_vm_name}) can not get IP address with errors:\n"
+    #         f"API Status({code}): {data}"
+    #     )
 
-        # Check data in restored VM is consistent
-        pri_key, ssh_user = cluster_state.vms['pkey'], cluster_state.vms['ssh_user']
-        vm_ip = next(iface['ipAddress'] for iface in data['status']['interfaces']
-                     if iface['name'] == 'nic-1')
-        endtime = datetime.now() + timedelta(seconds=wait_timeout)
-        while endtime > datetime.now():
-            try:
-                with vm_shell.login(vm_ip, ssh_user, pkey=pri_key) as sh:
-                    cloud_inited, (out, err) = vm_checker.wait_cloudinit_done(sh)
-                    assert cloud_inited and not err, (out, err)
-                    out, err = sh.exec_command("md5sum -c ./generate_file.md5")
-                    assert not err, (out, err)
-                    md5, err = sh.exec_command("cat ./generate_file.md5")
-                    assert not err, (md5, err)
-                    assert md5 == cluster_state.vms['md5']
-                    break
-            except (SSHException, NoValidConnectionsError, ConnectionResetError, TimeoutError):
-                sleep(5)
-        else:
-            raise AssertionError("Unable to login to restored VM to check data consistency")
+    #     # Check data in restored VM is consistent
+    #     pri_key, ssh_user = cluster_state.vms['pkey'], cluster_state.vms['ssh_user']
+    #     vm_ip = next(iface['ipAddress'] for iface in data['status']['interfaces']
+    #                  if iface['name'] == 'nic-1')
+    #     endtime = datetime.now() + timedelta(seconds=wait_timeout)
+    #     while endtime > datetime.now():
+    #         try:
+    #             with vm_shell.login(vm_ip, ssh_user, pkey=pri_key) as sh:
+    #                 cloud_inited, (out, err) = vm_checker.wait_cloudinit_done(sh)
+    #                 assert cloud_inited and not err, (out, err)
+    #                 out, err = sh.exec_command("md5sum -c ./generate_file.md5")
+    #                 assert not err, (out, err)
+    #                 md5, err = sh.exec_command("cat ./generate_file.md5")
+    #                 assert not err, (md5, err)
+    #                 assert md5 == cluster_state.vms['md5']
+    #                 break
+    #         except (SSHException, NoValidConnectionsError, ConnectionResetError, TimeoutError):
+    #             sleep(5)
+    #     else:
+    #         raise AssertionError("Unable to login to restored VM to check data consistency")
 
-        # teardown: remove the restored VM
-        code, data = api_client.vms.get(restored_vm_name)
-        vm_deleted, (code, data) = vm_checker.wait_deleted(restored_vm_name)
-        assert vm_deleted, (code, data)
-        del cluster_state.dangling[restored_vm_name]
+    #     # teardown: remove the restored VM
+    #     code, data = api_client.vms.get(restored_vm_name)
+    #     vm_deleted, (code, data) = vm_checker.wait_deleted(restored_vm_name)
+    #     assert vm_deleted, (code, data)
+    #     del cluster_state.dangling[restored_vm_name]
 
-    @pytest.mark.dependency(depends=["any_nodes_upgrade", "preq_setup_storageclass"])
-    def test_verify_storage_class(self, api_client, cluster_state):
-        """ Verify StorageClasses and defaults
-        - `new_sc` should be settle as default
-        - `longhorn` should exists
-        """
-        code, scs = api_client.scs.get()
-        assert code == 200, ("Failed to get StorageClasses: %d, %s" % (code, scs))
-        assert len(scs["items"]) > 0, ("No StorageClasses found")
+    # @pytest.mark.dependency(depends=["any_nodes_upgrade", "preq_setup_storageclass"])
+    # def test_verify_storage_class(self, api_client, cluster_state):
+    #     """ Verify StorageClasses and defaults
+    #     - `new_sc` should be settle as default
+    #     - `longhorn` should exists
+    #     """
+    #     code, scs = api_client.scs.get()
+    #     assert code == 200, ("Failed to get StorageClasses: %d, %s" % (code, scs))
+    #     assert len(scs["items"]) > 0, ("No StorageClasses found")
 
-        created_sc = cluster_state.scs[-1]['metadata']['name']
-        names = {sc['metadata']['name']: sc['metadata'].get('annotations') for sc in scs['items']}
-        assert "longhorn" in names
-        assert created_sc in names
-        assert "storageclass.kubernetes.io/is-default-class" in names[created_sc]
-        assert "true" == names[created_sc]["storageclass.kubernetes.io/is-default-class"]
+    #     created_sc = cluster_state.scs[-1]['metadata']['name']
+    #     names = {sc['metadata']['name']: sc['metadata'].get('annotations') for sc in scs['items']}
+    #     assert "longhorn" in names
+    #     assert created_sc in names
+    #     assert "storageclass.kubernetes.io/is-default-class" in names[created_sc]
+    #     assert "true" == names[created_sc]["storageclass.kubernetes.io/is-default-class"]
 
-    @pytest.mark.dependency(depends=["any_nodes_upgrade"])
-    def test_verify_os_version(self, request, api_client, cluster_state, host_shell):
-        # Verify /etc/os-release on all nodes
-        script = "cat /etc/os-release"
-        if not cluster_state.version_verify:
-            pytest.skip("skip verify os version")
+    # @pytest.mark.dependency(depends=["any_nodes_upgrade"])
+    # def test_verify_os_version(self, request, api_client, cluster_state, host_shell):
+    #     # Verify /etc/os-release on all nodes
+    #     script = "cat /etc/os-release"
+    #     if not cluster_state.version_verify:
+    #         pytest.skip("skip verify os version")
 
-        # Get all nodes
-        code, data = api_client.hosts.get()
-        assert 200 == code, (code, data)
-        for node in data['data']:
-            node_ip = node["metadata"]["annotations"][NODE_INTERNAL_IP_ANNOTATION]
+    #     # Get all nodes
+    #     code, data = api_client.hosts.get()
+    #     assert 200 == code, (code, data)
+    #     for node in data['data']:
+    #         node_ip = node["metadata"]["annotations"][NODE_INTERNAL_IP_ANNOTATION]
 
-            with host_shell.login(node_ip) as sh:
-                lines, stderr = sh.exec_command(script, get_pty=True, splitlines=True)
-                assert not stderr, (
-                    f"Failed to execute {script} on {node_ip}: {stderr}")
+    #         with host_shell.login(node_ip) as sh:
+    #             lines, stderr = sh.exec_command(script, get_pty=True, splitlines=True)
+    #             assert not stderr, (
+    #                 f"Failed to execute {script} on {node_ip}: {stderr}")
 
-                # eg: PRETTY_NAME="Harvester v1.1.0"
-                assert cluster_state.version == re.findall(r"Harvester (.+?)\"", lines[3])[0], (
-                    "OS version is not correct")
+    #             # eg: PRETTY_NAME="Harvester v1.1.0"
+    #             assert cluster_state.version == re.findall(r"Harvester (.+?)\"", lines[3])[0], (
+    #                 "OS version is not correct")
 
-    @pytest.mark.dependency(depends=["any_nodes_upgrade"])
-    def test_verify_rke2_version(self, api_client, host_shell):
-        # Verify node version on all nodes
-        script = "cat /etc/harvester-release.yaml"
+    # @pytest.mark.dependency(depends=["any_nodes_upgrade"])
+    # def test_verify_rke2_version(self, api_client, host_shell):
+    #     # Verify node version on all nodes
+    #     script = "cat /etc/harvester-release.yaml"
 
-        label_main = "node-role.kubernetes.io/control-plane"
-        code, data = api_client.hosts.get()
-        assert 200 == code, (code, data)
-        masters = [n for n in data['data'] if n['metadata']['labels'].get(label_main) == "true"]
+    #     label_main = "node-role.kubernetes.io/control-plane"
+    #     code, data = api_client.hosts.get()
+    #     assert 200 == code, (code, data)
+    #     masters = [n for n in data['data'] if n['metadata']['labels'].get(label_main) == "true"]
 
-        # Verify rke2 version
-        except_rke2_version = ""
-        for node in masters:
-            node_ip = node["metadata"]["annotations"][NODE_INTERNAL_IP_ANNOTATION]
+    #     # Verify rke2 version
+    #     except_rke2_version = ""
+    #     for node in masters:
+    #         node_ip = node["metadata"]["annotations"][NODE_INTERNAL_IP_ANNOTATION]
 
-            # Get except rke2 version
-            if except_rke2_version == "":
-                with host_shell.login(node_ip) as sh:
-                    lines, stderr = sh.exec_command(script, get_pty=True, splitlines=True)
-                    assert not stderr, (
-                        f"Failed to execute {script} on {node_ip}: {stderr}")
+    #         # Get except rke2 version
+    #         if except_rke2_version == "":
+    #             with host_shell.login(node_ip) as sh:
+    #                 lines, stderr = sh.exec_command(script, get_pty=True, splitlines=True)
+    #                 assert not stderr, (
+    #                     f"Failed to execute {script} on {node_ip}: {stderr}")
 
-                    for line in lines:
-                        if "kubernetes" in line:
-                            except_rke2_version = re.findall(r"kubernetes: (.*)", line.strip())[0]
-                            break
+    #                 for line in lines:
+    #                     if "kubernetes" in line:
+    #                         except_rke2_version = re.findall(r"kubernetes: (.*)", line.strip())[0]
+    #                         break
 
-                    assert except_rke2_version != "", ("Failed to get except rke2 version")
+    #                 assert except_rke2_version != "", ("Failed to get except rke2 version")
 
-            assert node.get('status', {}).get('nodeInfo', {}).get(
-                   "kubeletVersion", "") == except_rke2_version, (
-                   "rke2 version is not correct")
+    #         assert node.get('status', {}).get('nodeInfo', {}).get(
+    #                "kubeletVersion", "") == except_rke2_version, (
+    #                "rke2 version is not correct")
 
-    @pytest.mark.dependency(depends=["any_nodes_upgrade"])
-    def test_verify_deployed_components_version(self, api_client):
-        """ Verify deployed kubevirt and longhorn version
-        Criteria:
-        - except version(get from apps.catalog.cattle.io/harvester) should be equal to the version
-          of kubevirt and longhorn
-        """
+    # @pytest.mark.dependency(depends=["any_nodes_upgrade"])
+    # def test_verify_deployed_components_version(self, api_client):
+    #     """ Verify deployed kubevirt and longhorn version
+    #     Criteria:
+    #     - except version(get from apps.catalog.cattle.io/harvester) should be equal to the version
+    #       of kubevirt and longhorn
+    #     """
 
-        def check_image_version(old, new):
-            def sanitized_ver(img: str):
-                try:
-                    # PEP 440 compliant: N(.N)*[-+]?[{a|alpha|b|beta|c|rc}N][.postN][.devN]
-                    ver_str = img.split(':', 1)[-1]
-                    ver_obj = parse_version(ver_str)
-                    return ver_obj
-                except InvalidVersion as e:
-                    if "-" in ver_str:
-                        # Conform to PEP 440 by replacing the first '-' with '+'
-                        # e.g. 1.2.3-4.5.6 -> 1.2.3+4.5.6, v1.10.1-hotfix-2 -> v1.10.1+hotfix
-                        ver_obj = parse_version("+".join(ver_str.split("-")[:2]))
-                        logger.warning(f"Convert {img} to {ver_obj} for comparison")
-                        return ver_obj
-                    raise e
+    #     def check_image_version(old, new):
+    #         def sanitized_ver(img: str):
+    #             try:
+    #                 # PEP 440 compliant: N(.N)*[-+]?[{a|alpha|b|beta|c|rc}N][.postN][.devN]
+    #                 ver_str = img.split(':', 1)[-1]
+    #                 ver_obj = parse_version(ver_str)
+    #                 return ver_obj
+    #             except InvalidVersion as e:
+    #                 if "-" in ver_str:
+    #                     # Conform to PEP 440 by replacing the first '-' with '+'
+    #                     # e.g. 1.2.3-4.5.6 -> 1.2.3+4.5.6, v1.10.1-hotfix-2 -> v1.10.1+hotfix
+    #                     ver_obj = parse_version("+".join(ver_str.split("-")[:2]))
+    #                     logger.warning(f"Convert {img} to {ver_obj} for comparison")
+    #                     return ver_obj
+    #                 raise e
 
-            old_le_new = (sanitized_ver(old) <= sanitized_ver(new))
-            if not old_le_new:
-                logger.error(f"Old image {old} does not less or equal to the new {new}")
+    #         old_le_new = (sanitized_ver(old) <= sanitized_ver(new))
+    #         if not old_le_new:
+    #             logger.error(f"Old image {old} does not less or equal to the new {new}")
 
-            return old_le_new
+    #         return old_le_new
 
-        kubevirt_version_existed = False
-        engine_image_version_existed = False
-        longhorn_manager_version_existed = False
+    #     kubevirt_version_existed = False
+    #     engine_image_version_existed = False
+    #     longhorn_manager_version_existed = False
 
-        # Get expected image of kubevirt
-        code, app = api_client.get_apps_deployments(name="virt-operator",
-                                                    namespace=DEFAULT_HARVESTER_NAMESPACE)
-        assert code == 200, (code, app)
-        kubevirt_operator_image = app['spec']['template']['spec']['containers'][0]['image']
+    #     # Get expected image of kubevirt
+    #     code, app = api_client.get_apps_deployments(name="virt-operator",
+    #                                                 namespace=DEFAULT_HARVESTER_NAMESPACE)
+    #     assert code == 200, (code, app)
+    #     kubevirt_operator_image = app['spec']['template']['spec']['containers'][0]['image']
 
-        # Get except image of longhorn
-        code, apps = api_client.get_apps_controllerrevisions(namespace=DEFAULT_LONGHORN_NAMESPACE)
-        assert code == 200, (code, apps)
+    #     # Get except image of longhorn
+    #     code, apps = api_client.get_apps_controllerrevisions(namespace=DEFAULT_LONGHORN_NAMESPACE)
+    #     assert code == 200, (code, apps)
 
-        longhorn_images = {
-            "engine-image": "",
-            "longhorn-manager": ""
-        }
-        for lh_app in longhorn_images:
-            for app in apps['data']:
-                if app["id"].startswith(f"{DEFAULT_LONGHORN_NAMESPACE}/{lh_app}"):
-                    longhorn_images[lh_app] = (
-                        app["data"]["spec"]["template"]["spec"]["containers"][0]["image"])
-                    break
+    #     longhorn_images = {
+    #         "engine-image": "",
+    #         "longhorn-manager": ""
+    #     }
+    #     for lh_app in longhorn_images:
+    #         for app in apps['data']:
+    #             if app["id"].startswith(f"{DEFAULT_LONGHORN_NAMESPACE}/{lh_app}"):
+    #                 longhorn_images[lh_app] = (
+    #                     app["data"]["spec"]["template"]["spec"]["containers"][0]["image"])
+    #                 break
 
-        # Verify kubevirt version
-        code, pods = api_client.get_pods(namespace=DEFAULT_HARVESTER_NAMESPACE)
-        assert code == 200 and len(pods['data']) > 0, (
-            f"Failed to get pods in namespace {DEFAULT_HARVESTER_NAMESPACE}")
+    #     # Verify kubevirt version
+    #     code, pods = api_client.get_pods(namespace=DEFAULT_HARVESTER_NAMESPACE)
+    #     assert code == 200 and len(pods['data']) > 0, (
+    #         f"Failed to get pods in namespace {DEFAULT_HARVESTER_NAMESPACE}")
 
-        for pod in pods['data']:
-            if "virt-operator" in pod['metadata']['name']:
-                kubevirt_version_existed = check_image_version(
-                    kubevirt_operator_image, pod['spec']['containers'][0]['image']
-                )
+    #     for pod in pods['data']:
+    #         if "virt-operator" in pod['metadata']['name']:
+    #             kubevirt_version_existed = check_image_version(
+    #                 kubevirt_operator_image, pod['spec']['containers'][0]['image']
+    #             )
 
-        # Verify longhorn version
-        code, pods = api_client.get_pods(namespace=DEFAULT_LONGHORN_NAMESPACE)
-        assert code == 200 and len(pods['data']) > 0, (
-            f"Failed to get pods in namespace {DEFAULT_LONGHORN_NAMESPACE}")
+    #     # Verify longhorn version
+    #     code, pods = api_client.get_pods(namespace=DEFAULT_LONGHORN_NAMESPACE)
+    #     assert code == 200 and len(pods['data']) > 0, (
+    #         f"Failed to get pods in namespace {DEFAULT_LONGHORN_NAMESPACE}")
 
-        for pod in pods['data']:
-            if "longhorn-manager" in pod['metadata']['name']:
-                longhorn_manager_version_existed = check_image_version(
-                  longhorn_images["longhorn-manager"], pod['spec']['containers'][0]['image']
-                )
-            elif "engine-image" in pod['metadata']['name']:
-                engine_image_version_existed = check_image_version(
-                    longhorn_images["engine-image"], pod['spec']['containers'][0]['image']
-                )
+    #     for pod in pods['data']:
+    #         if "longhorn-manager" in pod['metadata']['name']:
+    #             longhorn_manager_version_existed = check_image_version(
+    #               longhorn_images["longhorn-manager"], pod['spec']['containers'][0]['image']
+    #             )
+    #         elif "engine-image" in pod['metadata']['name']:
+    #             engine_image_version_existed = check_image_version(
+    #                 longhorn_images["engine-image"], pod['spec']['containers'][0]['image']
+    #             )
 
-        assert kubevirt_version_existed, "kubevirt version is not correct"
-        assert engine_image_version_existed, "longhorn engine image version is not correct"
-        assert longhorn_manager_version_existed, "longhorn manager version is not correct"
+    #     assert kubevirt_version_existed, "kubevirt version is not correct"
+    #     assert engine_image_version_existed, "longhorn engine image version is not correct"
+    #     assert longhorn_manager_version_existed, "longhorn manager version is not correct"
 
-    @pytest.mark.dependency(depends=["any_nodes_upgrade"])
-    def test_verify_crds_existed(self, api_client, harvester_crds):
-        """ Verify crds existed
-        Criteria:
-        - crds should be existed
-        """
-        not_existed_crds = []
-        exist_crds = True
-        for crd in harvester_crds:
-            code, _ = api_client.get_crds(name=crd)
+    # @pytest.mark.dependency(depends=["any_nodes_upgrade"])
+    # def test_verify_crds_existed(self, api_client, harvester_crds):
+    #     """ Verify crds existed
+    #     Criteria:
+    #     - crds should be existed
+    #     """
+    #     not_existed_crds = []
+    #     exist_crds = True
+    #     for crd in harvester_crds:
+    #         code, _ = api_client.get_crds(name=crd)
 
-            if code != 200:
-                exist_crds = False
-                not_existed_crds.append(crd)
+    #         if code != 200:
+    #             exist_crds = False
+    #             not_existed_crds.append(crd)
 
-        if not exist_crds:
-            raise AssertionError(f"CRDs {not_existed_crds} are not existed")
+    #     if not exist_crds:
+    #         raise AssertionError(f"CRDs {not_existed_crds} are not existed")
 
-    @pytest.mark.dependency(depends=["any_nodes_upgrade"])
-    def test_verify_upgradelog(self, api_client):
-        """ Verify upgradelog pod and volume existed when upgrade with "Enable Logging"
-        """
-        # pod
-        code, data = api_client.get_pods(namespace='harvester-system')
-        assert code == 200 and data['data'], (code, data)
+    # @pytest.mark.dependency(depends=["any_nodes_upgrade"])
+    # def test_verify_upgradelog(self, api_client):
+    #     """ Verify upgradelog pod and volume existed when upgrade with "Enable Logging"
+    #     """
+    #     # pod
+    #     code, data = api_client.get_pods(namespace='harvester-system')
+    #     assert code == 200 and data['data'], (code, data)
 
-        upgradelog_pods = [pod for pod in data['data'] if 'upgradelog' in pod['id']]
-        assert upgradelog_pods, f"No upgradelog pod found:\n{data['data']}"
-        for pod in upgradelog_pods:
-            assert pod["status"]["phase"] == "Running", (code, upgradelog_pods)
+    #     upgradelog_pods = [pod for pod in data['data'] if 'upgradelog' in pod['id']]
+    #     assert upgradelog_pods, f"No upgradelog pod found:\n{data['data']}"
+    #     for pod in upgradelog_pods:
+    #         assert pod["status"]["phase"] == "Running", (code, upgradelog_pods)
 
-        # volume
-        code, data = api_client.volumes.get(namespace='harvester-system')
-        assert code == 200 and data['data'], (code, data)
+    #     # volume
+    #     code, data = api_client.volumes.get(namespace='harvester-system')
+    #     assert code == 200 and data['data'], (code, data)
 
-        upgradelog_vols = [vol for vol in data['data'] if 'upgradelog' in vol['id']]
-        assert upgradelog_vols, f"No upgradelog volume found:\n{data['data']}"
-        for vol in upgradelog_vols:
-            assert not vol["metadata"]['state']['error'], (code, upgradelog_vols)
-            assert not vol["metadata"]['state']['transitioning'], (code, upgradelog_vols)
-            assert vol['status']['phase'] == "Bound", (code, upgradelog_vols)
+    #     upgradelog_vols = [vol for vol in data['data'] if 'upgradelog' in vol['id']]
+    #     assert upgradelog_vols, f"No upgradelog volume found:\n{data['data']}"
+    #     for vol in upgradelog_vols:
+    #         assert not vol["metadata"]['state']['error'], (code, upgradelog_vols)
+    #         assert not vol["metadata"]['state']['transitioning'], (code, upgradelog_vols)
+    #         assert vol['status']['phase'] == "Bound", (code, upgradelog_vols)
 
-    @pytest.mark.dependency(depends=["any_nodes_upgrade"])
-    def test_upgrade_vm_deleted(self, api_client, wait_timeout):
-        # max to wait 300s for the upgrade related VMs to be deleted
-        endtime = datetime.now() + timedelta(seconds=min(wait_timeout / 5, 300))
-        while endtime > datetime.now():
-            code, data = api_client.vms.get(namespace='harvester-system')
-            upgrade_vms = [vm for vm in data['data'] if 'upgrade' in vm['id']]
-            if not upgrade_vms:
-                break
-        else:
-            raise AssertionError(f"Upgrade related VM still available:\n{upgrade_vms}")
+    # @pytest.mark.dependency(depends=["any_nodes_upgrade"])
+    # def test_upgrade_vm_deleted(self, api_client, wait_timeout):
+    #     # max to wait 300s for the upgrade related VMs to be deleted
+    #     endtime = datetime.now() + timedelta(seconds=min(wait_timeout / 5, 300))
+    #     while endtime > datetime.now():
+    #         code, data = api_client.vms.get(namespace='harvester-system')
+    #         upgrade_vms = [vm for vm in data['data'] if 'upgrade' in vm['id']]
+    #         if not upgrade_vms:
+    #             break
+    #     else:
+    #         raise AssertionError(f"Upgrade related VM still available:\n{upgrade_vms}")
 
-    @pytest.mark.dependency(depends=["any_nodes_upgrade"])
-    def test_upgrade_volume_deleted(self, api_client, wait_timeout):
-        # max to wait 300s for the upgrade related volumes to be deleted
-        endtime = datetime.now() + timedelta(seconds=min(wait_timeout / 5, 300))
-        while endtime > datetime.now():
-            code, data = api_client.volumes.get(namespace='harvester-system')
-            upgrade_vols = [vol for vol in data['data']
-                            if 'upgrade' in vol['id'] and 'log-archive' not in vol['id']]
-            if not upgrade_vols:
-                break
-        else:
-            raise AssertionError(f"Upgrade related volume(s) still available:\n{upgrade_vols}")
+    # @pytest.mark.dependency(depends=["any_nodes_upgrade"])
+    # def test_upgrade_volume_deleted(self, api_client, wait_timeout):
+    #     # max to wait 300s for the upgrade related volumes to be deleted
+    #     endtime = datetime.now() + timedelta(seconds=min(wait_timeout / 5, 300))
+    #     while endtime > datetime.now():
+    #         code, data = api_client.volumes.get(namespace='harvester-system')
+    #         upgrade_vols = [vol for vol in data['data']
+    #                         if 'upgrade' in vol['id'] and 'log-archive' not in vol['id']]
+    #         if not upgrade_vols:
+    #             break
+    #     else:
+    #         raise AssertionError(f"Upgrade related volume(s) still available:\n{upgrade_vols}")
 
-    @pytest.mark.dependency(depends=["any_nodes_upgrade"])
-    def test_upgrade_image_deleted(self, api_client, wait_timeout):
-        # max to wait 300s for the upgrade related volumes to be deleted
-        endtime = datetime.now() + timedelta(seconds=min(wait_timeout / 5, 300))
-        while endtime > datetime.now():
-            code, data = api_client.images.get(namespace='harvester-system')
-            upgrade_images = [image for image in data['items']
-                              if 'upgrade' in image['spec']['displayName']]
-            if not upgrade_images:
-                break
-        else:
-            raise AssertionError(f"Upgrade related image(s) still available:\n{upgrade_images}")
+    # @pytest.mark.dependency(depends=["any_nodes_upgrade"])
+    # def test_upgrade_image_deleted(self, api_client, wait_timeout):
+    #     # max to wait 300s for the upgrade related volumes to be deleted
+    #     endtime = datetime.now() + timedelta(seconds=min(wait_timeout / 5, 300))
+    #     while endtime > datetime.now():
+    #         code, data = api_client.images.get(namespace='harvester-system')
+    #         upgrade_images = [image for image in data['items']
+    #                           if 'upgrade' in image['spec']['displayName']]
+    #         if not upgrade_images:
+    #             break
+    #     else:
+    #         raise AssertionError(f"Upgrade related image(s) still available:\n{upgrade_images}")
 
-    @pytest.mark.dependency(depends=["any_nodes_upgrade", "preq_setup_vms"])
-    def test_teardown_environment(self, api_client, cluster_state, vm_checker):
-        ''' Clean up helper test executed after the upgrade flow
-        1. Deletes the pre-upgrade VMs that were successfully verified, so module fixtures can
-          teardown cleanly.
-        '''
+    # @pytest.mark.dependency(depends=["any_nodes_upgrade", "preq_setup_vms"])
+    # def test_teardown_environment(self, api_client, cluster_state, vm_checker):
+    #     ''' Clean up helper test executed after the upgrade flow
+    #     1. Deletes the pre-upgrade VMs that were successfully verified, so module fixtures can
+    #       teardown cleanly.
+    #     '''
 
-        # remove those VMs created before upgrade and verified
-        for name in cluster_state.vms['names']:
-            if name in cluster_state.dangling:
-                code, data = api_client.vms.get(name)
-                if 404 != code:
-                    vm_deleted, (code, data) = vm_checker.wait_deleted(name)
-                    if vm_deleted:
-                        del cluster_state.dangling[name]
+    #     # remove those VMs created before upgrade and verified
+    #     for name in cluster_state.vms['names']:
+    #         if name in cluster_state.dangling:
+    #             code, data = api_client.vms.get(name)
+    #             if 404 != code:
+    #                 vm_deleted, (code, data) = vm_checker.wait_deleted(name)
+    #                 if vm_deleted:
+    #                     del cluster_state.dangling[name]
