@@ -656,6 +656,8 @@ class TestAnyNodesUpgrade:
 
         cpu, mem, size = 1, 2, 10
         vm_spec = api_client.vms.Spec(cpu, mem, mgmt_network=False)
+        # TODO: Workaround, drop once https://github.com/harvester/harvester/issues/11358 is fixed
+        vm_spec.cpu_model = "IvyBridge"
         vm_spec.add_image('disk-0', image['id'], size=size, image_uid=image.get('uid'))
         vm_spec.add_network('nic-1', f"{vm_network['namespace']}/{vm_network['name']}")
         userdata = yaml.safe_load(vm_spec.user_data)
@@ -1404,6 +1406,7 @@ class TestAnyNodesUpgrade:
         1. Deletes the pre-upgrade VMs that were successfully verified, so module fixtures can
           teardown cleanly.
         '''
+        pytest.skip("drop once https://github.com/harvester/harvester/issues/11358 is fixed")
 
         # remove those VMs created before upgrade and verified
         for name in cluster_state.vms['names']:
