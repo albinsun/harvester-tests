@@ -823,6 +823,7 @@ class TestAnyNodesUpgrade:
 
         # Create VM having additional volume with new storage class
         vm_spec.cpu_cores = 2    # cover multiple core scenario
+        vm_spec.efi_boot = True  # cover EFI boot scenario
         vm_spec.add_volume("vol-1", 5, storage_cls=new_sc['metadata']['name'])
         code, data = api_client.vms.create(f"sc-{unique_vm_name}", vm_spec)
         assert 201 == code, (code, data)
